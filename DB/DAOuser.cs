@@ -1,16 +1,45 @@
 using System;
 using System.Data.SqlClient;
 
-public class UserDAO
+public class LoginDAO
 {
     private string _connectionString;
-
-    public UserDAO(string connectionString)
+    
+    public bool LoginUser(string email, string password)
     {
-        _connectionString = connectionString;
+        try
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT COUNT(1) FROM userData WHERE emailUser = @Email AND passwordUser = @Password";
+                using (SqlCommand cmd = new SqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@Password", password);
+
+                    int count = (int)cmd.ExecuteScalar();
+
+                    if (count > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
-    public bool loginUser(string email, string name, string surname, string password, string telnum)
+
+    public bool RegisterUser(string email, string name, string surname, string password, string telnum)
     {
         try
         {
@@ -21,8 +50,8 @@ public class UserDAO
                 string checkQuery = "SELECT COUNT(1) FROM userData WHERE emailUser = @Email OR telnumUser = @Telnum";
                 using (SqlCommand checkCommand = new SqlCommand(checkQuery, connection))
                 {
-                    checkCommand.Parameters.AddWithValue("@Email", emailUser);
-                    checkCommand.Parameters.AddWithValue("@Telnum", telnumUser);
+                    checkCommand.Parameters.AddWithValue("@Email", email);
+                    checkCommand.Parameters.AddWithValue("@Telnum", telnum);
 
                     int existingUser = (int)checkCommand.ExecuteScalar();
                     if (existingUser > 0)
@@ -35,18 +64,17 @@ public class UserDAO
                                      "VALUES (@Email, @Name, @Surname, @Password, @Telnum)";
                 using (SqlCommand insertCommand = new SqlCommand(insertQuery, connection))
                 {
-                    insertCommand.Parameters.AddWithValue("@Email", emailUser);
-                    insertCommand.Parameters.AddWithValue("@Name", nameUser);
-                    insertCommand.Parameters.AddWithValue("@Surname", surnameUser);
-                    insertCommand.Parameters.AddWithValue("@Password", passwordUser);
-                    insertCommand.Parameters.AddWithValue("@Telnum", telnumUser);
+                    insertCommand.Parameters.AddWithValue("@Email", email);
+                    insertCommand.Parameters.AddWithValue("@Name", name);
+                    insertCommand.Parameters.AddWithValue("@Surname", surname);
+                    insertCommand.Parameters.AddWithValue("@Password", password);
+                    insertCommand.Parameters.AddWithValue("@Telnum", telnum);
 
                     insertCommand.ExecuteNonQuery();
                 }
             }
             return true; 
         }
-
         catch (Exception)
         {
             return false;
