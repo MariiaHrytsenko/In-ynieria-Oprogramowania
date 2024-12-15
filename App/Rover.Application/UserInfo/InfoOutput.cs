@@ -1,20 +1,20 @@
-﻿using Rover.Domain;
+using Rover.Domain;
 using Rover.Infrastructure;
 using MediatR;
+using Rover.Application.UserInfo;
 using Microsoft.EntityFrameworkCore;
 using Rover.Application;
 
 namespace Rover.Application.UserInfo
 {
-    public class InfoOutput
+    public class UsersInfoOutput
     {
         public class Query : IRequest<Result<User>>
         {
             public Guid Id { get; set; }
         }
 
-
-        public class Handler : IRequestHandler<InfoOutput.Query, Result<User>>
+        public class Handler : IRequestHandler<UsersInfoOutput.Query, Result<User>>
         {
             private readonly DataContext _context;
 
@@ -23,7 +23,7 @@ namespace Rover.Application.UserInfo
                 _context = context;
             }
 
-            public async Task<Result<User>> Handle(InfoOutput.Query request, CancellationToken cancellationToken)
+            public async Task<Result<User>> Handle(UsersInfoOutput.Query request, CancellationToken cancellationToken)
             {
                 var user = await _context.Users.FindAsync(request.Id);
 
