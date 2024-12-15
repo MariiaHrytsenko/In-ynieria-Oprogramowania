@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Rover.Application;
 using Rover.Domain;
 using Rover.Infrastructure;
@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rover.Application.UserInfo;
+using Rover.Application.BikeInfo;
 namespace Rover.API.Controllers
 {
     public class UsersController : BaseApiController
@@ -35,7 +36,7 @@ namespace Rover.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
-            var result = await Mediator.Send(new InfoOutput.Query { Id = id });
+            var result = await Mediator.Send(new UsersInfoOutput.Query { Id = id });
 
             if (!result.IsSuccess)
             {
@@ -45,7 +46,7 @@ namespace Rover.API.Controllers
             return Ok(result.Value);
         }
 
-        [HttpPut("{id}")] /
+        [HttpPut("{id}")] 
         public async Task<IActionResult> EditCar(Guid id, User user)
         {
             user.Id = id;
@@ -53,10 +54,10 @@ namespace Rover.API.Controllers
             return Ok();
         }
 
-        [HttpPost] 
+        [HttpPost]
         public async Task<IActionResult> CreateUser(User user)
         {
-            user.Id = Guid.NewGuid(); 
+            user.Id = Guid.NewGuid();
             await _mediator.Send(new Create.Command { User = user });
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
         }
