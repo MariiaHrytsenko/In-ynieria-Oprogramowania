@@ -189,10 +189,9 @@ def ModelBike_DB(conn, modelBike):
         cursor = conn.cursor()
         for index, row in modelBike.iterrows():
             try:
-                # Перевірка на наявність NaN значень у числових стовпцях
                 if pd.isna(row['IDmodel']) or pd.isna(row['priceModel']) or pd.isna(row['amountBike']) or pd.isna(row['amountAvailableBike']):
                     print(f"Skipping row {index + 1} due to NaN values: {row.to_dict()}")
-                    continue  # Пропускаємо цю row, якщо є NaN значення
+                    continue  
 
                 cursor.execute("""
                     IF NOT EXISTS (SELECT 1 FROM dbo.modelBike WHERE IDmodel = ?)
@@ -201,13 +200,13 @@ def ModelBike_DB(conn, modelBike):
                         VALUES (?, ?, ?, ?, ?, ?)
                     END
                 """,
-                row['IDmodel'],              # Перевірка існування
-                row['IDmodel'],              # Вставка ID моделі
-                row['nameModel'],            # Назва моделі
-                row['typeModel'],            # Тип моделі
-                row['priceModel'],           # Ціна моделі
-                row['amountBike'],           # Кількість велосипедів
-                row['amountAvailableBike']   # Доступна кількість велосипедів
+                row['IDmodel'],              
+                row['IDmodel'],              
+                row['nameModel'],            
+                row['typeModel'],            
+                row['priceModel'],           
+                row['amountBike'],           
+                row['amountAvailableBike']   
                 )
             except Exception as e:
                 print(f"Error with the row {index + 1}: {e}")
@@ -221,11 +220,11 @@ def BikeData_DB(conn, bikeData):
         cursor = conn.cursor()
         for index, row in bikeData.iterrows():
             try:
-                # Конвертація значень до стандартних типів Python
-                id_bike = int(row['IDbike'])    # Перетворення на Python int
-                id_model = int(row['IDmodel']) # Перетворення на Python int
 
-                # Вставка даних у таблицю bikeData, перевірка на існування IDbike
+                id_bike = int(row['IDbike'])    
+                id_model = int(row['IDmodel'])
+
+
                 cursor.execute("""
                     IF NOT EXISTS (SELECT 1 FROM dbo.bikeData WHERE IDbike = ?)
                     BEGIN
@@ -247,24 +246,20 @@ def OrderUser_DB(conn, orderUser):
         cursor = conn.cursor()
         for index, row in orderUser.iterrows():
             try:
-                # Перевіряємо значення: якщо NaN або None, залишаємо як None
+
                 id_order = int(row['IDorder']) if pd.notna(row['IDorder']) else None
                 id_user = int(row['IDuser']) if pd.notna(row['IDuser']) else None
                 id_bike = int(row['IDbike']) if pd.notna(row['IDbike']) else None
 
-                # Значення IDpayment завжди 90283091
                 id_payment = 90283091
-
-                # Вставка даних у таблицю orderUser без перевірки IF NOT EXISTS
                 cursor.execute("""
                     INSERT INTO dbo.orderUser (IDorder, IDuser, IDbike, IDpayment)
                     VALUES (?, ?, ?, ?)
-                """, id_order, id_user, id_bike, id_payment)  # Переконатись, що передаємо 4 параметри
+                """, id_order, id_user, id_bike, id_payment)  
 
             except Exception as e:
                 print(f"Error with the row {index + 1}: {e}")
         
-        # Фіксуємо транзакцію
         conn.commit()
         print("Data successfully inserted into DB.")
     except Exception as e:
